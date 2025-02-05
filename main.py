@@ -20,7 +20,11 @@ def getLink(post_date) -> str:
 
     following_sunday = next_monday + timedelta(days=6)
 
-    week_range = f"{next_monday.day}-a-{following_sunday.day}-de-{next_monday.strftime('%B').lower()}"
+    if next_monday.month != following_sunday.month:
+        week_range = f"{next_monday.day}-de-{next_monday.strftime('%B').lower()}-a-{following_sunday.day}-de-{following_sunday.strftime('%B').lower()}"
+    else:
+        week_range = f"{next_monday.day}-a-{following_sunday.day}-de-{next_monday.strftime('%B').lower()}"
+
 
     url = 'https://contaspoupanca.pt/carro/combustiveis/'
     response = requests.get(url)
@@ -77,6 +81,4 @@ def writeCSV(date, prices, path):
 
 
 if __name__ == '__main__':
-    prices = getPrices('https://contaspoupanca.pt/carro/combustiveis/2025-01-16-combustiveis--precos-na-proxima-semana--20-a-26-de-janeiro--a3101faf')
-    print(prices)
-    writeCSV('2025-01-27', prices, 'prices.csv')
+    print(getLink('2025-01-24'))

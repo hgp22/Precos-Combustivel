@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import csv
 import os
 
-def getLink(post_date) -> str:
+def getWeek(post_date) -> str:
     locale.setlocale(locale.LC_TIME, 'pt_PT.UTF-8')
 
     post_date_obj = datetime.strptime(post_date, '%Y-%m-%d')
@@ -24,8 +24,10 @@ def getLink(post_date) -> str:
         week_range = f"{next_monday.day}-de-{next_monday.strftime('%B').lower()}-a-{following_sunday.day}-de-{following_sunday.strftime('%B').lower()}"
     else:
         week_range = f"{next_monday.day}-a-{following_sunday.day}-de-{next_monday.strftime('%B').lower()}"
+    
+    return week_range
 
-
+def getLink(week_range) -> str:
     url = 'https://contaspoupanca.pt/carro/combustiveis/'
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -50,14 +52,14 @@ def getPrices(url) -> dict:
     gasoleo_element = soup.find('span', string=re.compile(r'Gasóleo'))
 
     if gasolina_element:
-        gasolina_text = gasolina_element.find_next('span').text
-        gasolina_variation = re.search(r'\(([-+]?\d+)', gasolina_text)
+        gasolina_text = gasolina_element.text
+        gasolina_variation = re.search(r'Gasolina \(([+-]?\d+(?:,\d+)?)', gasolina_text)
         if gasolina_variation:
             prices['Gasolina'] = gasolina_variation.group(1)
 
     if gasoleo_element:
         gasoleo_text = gasoleo_element.text
-        gasoleo_variation = re.search(r'Gasóleo \(([-+]?\d+)', gasoleo_text)
+        gasoleo_variation = re.search(r'Gasóleo \(([-+]?\d+,\d+)', gasoleo_text)
         if gasoleo_variation:
             prices['Gasóleo'] = gasoleo_variation.group(1)
 
@@ -65,20 +67,22 @@ def getPrices(url) -> dict:
 
 def writeCSV(date, prices, path):
     new_row = [date, prices.get('Gasolina', 'N/A'), prices.get('Gasóleo', 'N/A')]
-    
-    if os.path.exists(path):
-        with open(path, 'r', newline='', encoding='utf-8') as file:
-            existing_data = file.readlines()
+
+    file_exists = os.path.exists(path)
+
+    with open(path, 'a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file, delimiter=';')
         
-        with open(path, 'w', newline='', encoding='utf-8') as file:
-            file.write(f"{date};{new_row[1]};{new_row[2]}\n")
-            file.writelines(existing_data)
-    else:
-        with open(path, 'w', newline='', encoding='utf-8') as file:
-            writer = csv.writer(file, delimiter=';')
+        if not file_exists:
             writer.writerow(['date', 'gasolina', 'gasoleo'])
-            writer.writerow(new_row)
+
+        writer.writerow(new_row)
 
 
 if __name__ == '__main__':
-    print(getLink('2025-01-24'))
+    hoje = datetime.now().strftime('%Y-%m-%d')
+    prox_semana = getWeek(hoje)
+    date = f'{prox_semana}-' +  datetime.now().strftime('%Y')
+    writeCSV(date.replace("-", " "),
+             getPrices(getLink(prox_semana)),
+             'prices.csv')

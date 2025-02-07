@@ -9,5 +9,5 @@ Basta executar o script `setjob.py` para adicionar um cronjob que executa todas 
 
 ## TODO
 
-- [ ] Fazer vários cronjobs durante o fim de semana (caso o post saia mais tarde do que o habitual)
-- [ ] Verificar se a data já se encontra no csv para não estar sempre a reescrever os mesmos valores.
+- [x] Fazer vários cronjobs durante o fim de semana (caso o post saia mais tarde do que o habitual)
+- [x] Verificar se a data já se encontra no csv para não estar sempre a reescrever os mesmos valores.

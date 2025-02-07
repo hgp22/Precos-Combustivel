@@ -40,7 +40,8 @@ def getLink(week_range) -> str:
         href = link['href']
         if pattern.search(href) and '?' not in href:
             return 'https://contaspoupanca.pt' + href
-    return None
+    
+    raise ValueError('No link found...')
 
 def getPrices(url) -> dict:
     response = requests.get(url)
@@ -69,6 +70,15 @@ def writeCSV(date, prices, path):
     new_row = [date, prices.get('Gasolina', 'N/A'), prices.get('Gasóleo', 'N/A')]
 
     file_exists = os.path.exists(path)
+
+    if file_exists:
+        with open(path, 'r', newline='', encoding='utf-8') as file:
+            reader = csv.reader(file, delimiter=';')
+            for row in reader:
+                if row[0] == date:
+                    print(f"Date {date} already exists in the CSV file.")
+                    return
+
 
     with open(path, 'a', newline='', encoding='utf-8') as file:
         writer = csv.writer(file, delimiter=';')

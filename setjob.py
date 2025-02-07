@@ -19,16 +19,27 @@ update_jobs = [
 ]
 
 for schedule, comment in update_jobs:
-
     update_job = cron.new(command=f'{python_bin} {script_path}', comment=comment)
     update_job.setall(schedule)
 
-    build_job = cron.new(command=website_build_command, comment=f'Build e update do .csv depois de {comment}')
-    
-    hour, minute, rest = schedule.split(" ", 2)
-    new_minute = (int(minute) + 5) % 60
-    new_hour = int(hour) + ((int(minute) + 5) // 60) if hour != '*' else '*'
-    new_schedule = f'{new_minute} {new_hour} {rest}'
+    minute, hour, day, month, weekday = schedule.split(" ")
+
+    if minute.isdigit():
+        new_minute = (int(minute) + 5) % 60
+    else:
+        new_minute = minute  # Keep it unchanged if it's '*', a range, or a list
+
+    if minute.isdigit() and int(minute) + 5 >= 60:
+        if hour.isdigit():
+            new_hour = str(int(hour) + 1)
+        else:
+            new_hour = hour
+    else:
+        new_hour = hour
+
+    new_schedule = f"{new_minute} {new_hour} {day} {month} {weekday}"
+
+    build_job = cron.new(command=website_build_command, comment=f'Copy file after {comment}')
     build_job.setall(new_schedule)
 
 cron.write()

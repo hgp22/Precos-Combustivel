@@ -60,7 +60,7 @@ def getPrices(url) -> dict:
 
     if gasoleo_element:
         gasoleo_text = gasoleo_element.text
-        gasoleo_variation = re.search(r'Gasóleo \(([-+]?\d+,\d+)', gasoleo_text)
+        gasoleo_variation = re.search(r'Gasóleo \(([+-]?\d+(?:,\d+)?)', gasoleo_text)
         if gasoleo_variation:
             prices['Gasóleo'] = gasoleo_variation.group(1)
 

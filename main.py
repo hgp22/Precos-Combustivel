@@ -5,6 +5,11 @@ import re
 from datetime import datetime, timedelta
 import csv
 import os
+import unicodedata
+
+def remove_accents(text: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
+
 
 def getWeek(post_date) -> str:
     locale.setlocale(locale.LC_TIME, 'pt_PT.UTF-8')
@@ -25,7 +30,7 @@ def getWeek(post_date) -> str:
     else:
         week_range = f"{next_monday.day}-a-{following_sunday.day}-de-{next_monday.strftime('%B').lower()}"
     
-    return week_range
+    return remove_accents(week_range)
 
 def getLink(week_range) -> str:
     url = 'https://contaspoupanca.pt/carro/combustiveis/'
@@ -41,7 +46,7 @@ def getLink(week_range) -> str:
         if pattern.search(href) and '?' not in href:
             return 'https://contaspoupanca.pt' + href
     
-    raise ValueError('No link found...')
+    raise ValueError('No link found...\n>>>'+week_range)
 
 def getPrices(url) -> dict:
     response = requests.get(url)
@@ -90,7 +95,7 @@ def writeCSV(date, prices, path):
 
 
 if __name__ == '__main__':
-    hoje = datetime.now().strftime('%Y-%m-%d')
+    hoje = datetime.today().strftime('%Y-%m-%d')
     prox_semana = getWeek(hoje)
     date = f'{prox_semana}-' +  datetime.now().strftime('%Y')
     writeCSV(date.replace("-", " "),

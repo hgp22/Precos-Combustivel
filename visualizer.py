@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import csv
 import numpy as np
+import argparse
 
 def read_csv(file_path):
     weeks = []
@@ -70,8 +71,11 @@ def generate_graph(weeks, gasolina_values, gasolina_signs, gasoleo_values, gasol
     plt.show()
 
 if __name__ == '__main__':
-    file_path = 'prices.csv'
-    output_path = 'prices_graph.png'
+    parser = argparse.ArgumentParser(description='Generate a graph from a CSV file.')
+    parser.add_argument('input_csv', type=str, help='Path to the input CSV file')
+    parser.add_argument('output_image', type=str, help='Path to the output image file')
 
-    weeks, gasolina_values, gasolina_signs, gasoleo_values, gasoleo_signs = read_csv(file_path)
-    generate_graph(weeks, gasolina_values, gasolina_signs, gasoleo_values, gasoleo_signs, output_path)
+    args = parser.parse_args()
+
+    weeks, gasolina_values, gasolina_signs, gasoleo_values, gasoleo_signs = read_csv(args.input_csv)
+    generate_graph(weeks, gasolina_values, gasolina_signs, gasoleo_values, gasoleo_signs, args.output_image)

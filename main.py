@@ -79,11 +79,12 @@ def writeCSV(date, prices, path):
     if file_exists:
         with open(path, 'r', newline='', encoding='utf-8') as file:
             reader = csv.reader(file, delimiter=';')
-            for row in reader:
-                if row[0] == date:
-                    print(f"Date {date} already exists in the CSV file.")
-                    return
-
+            rows = list(reader)
+            
+            # Check if the file is not empty and if the date already exists
+            if rows and any(len(row) > 0 and row[0] == date for row in rows):
+                print(f"Date {date} already exists in the CSV file.")
+                return
 
     with open(path, 'a', newline='', encoding='utf-8') as file:
         writer = csv.writer(file, delimiter=';')

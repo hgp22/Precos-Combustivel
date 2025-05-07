@@ -29,7 +29,7 @@ def getWeek(post_date) -> str:
         week_range = f"{next_monday.day}-de-{next_monday.strftime('%B').lower()}-a-{following_sunday.day}-de-{following_sunday.strftime('%B').lower()}"
     else:
         week_range = f"{next_monday.day}-a-{following_sunday.day}-de-{next_monday.strftime('%B').lower()}"
-    
+
     return remove_accents(week_range)
 
 def getLink(week_range) -> str:
@@ -38,14 +38,16 @@ def getLink(week_range) -> str:
     soup = BeautifulSoup(response.text, 'html.parser')
 
     pattern = re.compile(
-        rf'/carro/combustiveis/.*-combustiveis--precos-na-proxima-semana--{week_range}--\w+'
+        rf'/carro/combustiveis/.*-precos-dos-combustiveis-na-proxima-semana-+{week_range}-+\w+'
     )
-
+    #2025-04-11-precos-dos-combustiveis-na-proxima-semana---14-a-20-de-abril--7ac2d15e
+    # tenho que adicionar mais padroes de regex que seja o maximo permissivo para
+    # encontrar o link pretendido...
     for link in soup.find_all('a', href=True):
         href = link['href']
         if pattern.search(href) and '?' not in href:
             return 'https://contaspoupanca.pt' + href
-    
+
     raise ValueError('No link found...\n>>>'+week_range)
 
 def getPrices(url) -> dict:

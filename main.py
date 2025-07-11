@@ -38,7 +38,7 @@ def getLink(week_range) -> str:
     soup = BeautifulSoup(response.text, 'html.parser')
 
     pattern = re.compile(
-        rf'/combustiveis/.*preco-dos-combustiveis-na-proxima-semana--{week_range}--\w+'
+        rf'/combustiveis/.*preco-dos-combustiveis-na-proxima-semana-\w+'
     )
 
     for link in soup.find_all('a', href=True):
